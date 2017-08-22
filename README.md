@@ -1,6 +1,7 @@
 # decision-tree
-<<<<<<< HEAD
-c4.5
-=======
+
 Implementation c4.5
->>>>>>> 105058cbd3696377c70216ac65782d2f86588ea3
+https://pt.wikipedia.org/wiki/Algoritmo_C4.5
+
+Source code of the original implementation
+https://github.com/ntallapa12/decision_tree
