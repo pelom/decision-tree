@@ -2,8 +2,6 @@ package br.pjsign.dt.impl;
 
 import br.pjsign.dt.Instance;
 import br.pjsign.dt.Node;
-import br.pjsign.dt.DecisionTree;
-import br.pjsign.dt.c45.C45DecisionTree;
 import br.pjsign.dt.io.InputData;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,17 +12,16 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-public class DecisionTreeDefaultTest {
+public class DTreeDefaultTest {
     private InputData trainInput;
     private InputData testInput;
-    private DecisionTreeDefault tree;
+    private DTreeDefault tree;
 
     @Before
     public void setUp() throws Exception {
         this.trainInput = new InputData("src/main/resources/trainProdSelection.arff");
         this.testInput = new InputData("src/main/resources/testProdSelection.arff");
-        this.trainInput.load();
-        this.tree = new DecisionTreeDefault(trainInput.getAttributeSet(), trainInput.getTargetAttribute());
+        this.tree = new DTreeDefault(trainInput);
     }
 
     @Test
@@ -43,7 +40,8 @@ public class DecisionTreeDefaultTest {
 
     @Test
     public void mineInstance() throws Exception {
-        this.tree = new C45DecisionTree(trainInput, testInput);
+        this.tree = new DTreeDefault(trainInput);
+        this.testInput.load();
         final List<Instance> testInstances = this.testInput.getInstanceSet();
         final Instance ins = testInstances.get(testInstances.size()-1);
         assertEquals("C1", ins.getAttribute("label"));
@@ -53,7 +51,8 @@ public class DecisionTreeDefaultTest {
 
     @Test
     public void mineInstances() throws Exception {
-        this.tree = new C45DecisionTree(trainInput, testInput);
+        this.tree = new DTreeDefault(trainInput);
+        this.testInput.load();
         final List<Instance> testInstances = this.testInput.getInstanceSet();
         final Map<Integer, Node> instanceNodeMap = tree.mineInstances(testInstances);
 
@@ -68,10 +67,10 @@ public class DecisionTreeDefaultTest {
         }
         assertEquals(21, instanceNodeMap.size());
         assertEquals(Integer.valueOf(4), testResult.get("C1"));
-        assertEquals(Integer.valueOf(4), testResult.get("C2"));
+        assertEquals(Integer.valueOf(2), testResult.get("C2"));
         assertEquals(Integer.valueOf(4), testResult.get("C3"));
-        assertEquals(Integer.valueOf(5), testResult.get("C4"));
-        assertEquals(Integer.valueOf(4), testResult.get("C5"));
+        assertEquals(Integer.valueOf(6), testResult.get("C4"));
+        assertEquals(Integer.valueOf(5), testResult.get("C5"));
     }
 
 }

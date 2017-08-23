@@ -1,7 +1,5 @@
 package br.pjsign.dt.c45;
 
-import br.pjsign.dt.Threshold;
-
 public class ThresholdContinuous extends ThresholdDefault {
 
     public ThresholdContinuous(final String keyChild, final String value) {

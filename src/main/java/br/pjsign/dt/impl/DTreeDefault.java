@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class DecisionTreeDefault implements DecisionTree {
+public class DTreeDefault implements DTree {
     private static final int MAJORITY_LABEL = -1;
 
     protected List<Attribute> attributes;
@@ -21,7 +21,7 @@ public class DecisionTreeDefault implements DecisionTree {
     /**
      *
      */
-    protected DecisionTreeDefault() {
+    protected DTreeDefault() {
         this(null, null);
     }
 
@@ -29,7 +29,7 @@ public class DecisionTreeDefault implements DecisionTree {
      * @param input
      * @throws IOException
      */
-    protected DecisionTreeDefault(final InputData input) throws IOException {
+    protected DTreeDefault(final InputData input) throws IOException {
         if(!input.isRead()) {
             input.load();
         }
@@ -44,7 +44,7 @@ public class DecisionTreeDefault implements DecisionTree {
      * @param attributes
      * @param attributeTarget
      */
-    public DecisionTreeDefault(final List<Attribute> attributes, final Attribute attributeTarget) {
+    public DTreeDefault(final List<Attribute> attributes, final Attribute attributeTarget) {
         this.attributes = attributes;
         this.attributeTarget = attributeTarget;
     }

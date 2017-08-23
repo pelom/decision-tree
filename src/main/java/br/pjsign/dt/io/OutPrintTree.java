@@ -12,12 +12,15 @@ public class OutPrintTree {
 
     public static int nodes;
     public static int depth;
+    public static int leaf;
 
 	public static StringBuilder print(final Node root) {
-	    nodes = 0;
+	    nodes = -1;
 	    depth = -1;
         final StringBuilder sb = print(root, -1);
-        sb.append("\ndepth: ").append(depth).append(" nodes: ").append(nodes);
+        sb.append("\ndepth: ").append(((int) depth/2))
+                .append(" nodes: ").append(nodes)
+                .append(" leaf: ").append(leaf);
         return sb;
 	}
 
@@ -27,9 +30,11 @@ public class OutPrintTree {
         final StringBuilder sb = new StringBuilder();
 
         if(root.isLeaf()) {
+            leaf++;
             sb.append("[").append(root.getTargetLabel()).append("]");
             return sb;
         } else {
+            depth++;
             sb.append("\n");
             Map<String, Node> children = root.getChildren();
             for (String valueName : children.keySet()) {
@@ -44,7 +49,6 @@ public class OutPrintTree {
                 sb.append(st);
                 if(st.indexOf("[") == 0) sb.append("\n");
             }
-            depth++;
             return sb;
         }
     }

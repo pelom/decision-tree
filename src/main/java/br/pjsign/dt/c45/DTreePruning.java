@@ -43,9 +43,10 @@ public class DTreePruning extends DTreeCrossValidation {
         final List<Double> scores = new ArrayList<Double>();
         final List<Instance> pruningInstances = new ArrayList<Instance>();
 
+        int acc = 0;
+        int tot = 0;
         for(int i = 0; i < testBundles.size(); i++) {
             final CaseTest caseTest = createCase(i, testBundles);
-
             int preSum = caseTest.train.size() * 2 / 3;
             int index = 0;
 
@@ -57,15 +58,23 @@ public class DTreePruning extends DTreeCrossValidation {
                 pruningInstances.add(caseTest.train.get(index));
             }
 
+            log.debug("caseTest.train: " + caseTest.train.size() + " caseTest.test:" + caseTest.test.size());
+            log.debug("train66: " + train66.size() + " pruningInstances:" + pruningInstances.size());
+
             construct(train66);
             final Map<Integer, Node> pruningResultMap = mineInstances(pruningInstances);
 
             final PruningTree pruningTree = new PruningTree(pruningInstances, pruningResultMap);
-            this.rootNode = pruningTree.execute(getRoot(), pruningInstances);;
+            this.rootNode = pruningTree.execute(getRoot(), pruningInstances);
 
             final int correct = countCorrect(caseTest.test);
             scores.add(correct * 1.0 / caseTest.test.size());
+            acc += correct;
+            tot += caseTest.test.size();
         }
+        log.debug("acc: " + acc);
+        log.debug("err: " + (tot-acc));
+        log.debug("tot: " + tot);
         return scores;
     }
 
@@ -79,23 +88,32 @@ public class DTreePruning extends DTreeCrossValidation {
         }
 
         public Node execute(final Node root, List<Instance> testInstances) {
+            log.debug("execute() root: " + root.getAttribute() + " testInstances: " + testInstances.size() + "\n");
+
             if(isStopNull(root, testInstances)) {
+                log.debug("isStopNull()");
                 return null;
             }
 
             if(root.isLeaf()) {
+                log.debug("isLeaf()");
                 return root;
             }
 
+            log.debug("children: " + root.getChildren().size());
+            log.debug("key: " + root.getChildren().keySet());
+
             for(String keyNode : root.getChildren().keySet()) {
                 final Node child = root.getChildren().get(keyNode);
-                final List<Instance> curInstances = retriveInstanceTest(keyNode, root, testInstances);
+                final List<Instance> curInstances = testNode(keyNode, root, testInstances);
                 final Node newChild = execute(child, curInstances);
                 if(newChild != null) {
+                    log.debug("addChild " + root.getAttribute().getName() + " put(" + keyNode + ", " + newChild + ")");
                     root.getChildren().put(keyNode, newChild);
                 }
             }
 
+            log.debug("children: " + root.getChildren().size());
             if(root.getChildren().size() != 0) {
                 final Map<String, Node> children = root.getChildren();
                 for(String k : children.keySet()) {
@@ -106,18 +124,32 @@ public class DTreePruning extends DTreeCrossValidation {
             }
 
             final Map<String, Integer> countLabelTestMap = countLabelTestMap(testInstances);
+
+            log.debug("countLabelTestMap: " + countLabelTestMap.size());
+            log.debug("keySet: " + countLabelTestMap.keySet());
+            log.debug("values: " + countLabelTestMap.values());
+
             int max = 0;
             String targetLabel = "";
             for(String k : countLabelTestMap.keySet()) {
-                max = Math.max(max, countLabelTestMap.get(k));
-                targetLabel = k;
+                final Integer temp = countLabelTestMap.get(k);
+                if(temp > max) {
+                    max = temp;
+                    targetLabel = k;
+                }
             }
 
+            //int preMax = countCorrect(this.pruningInstances, this.pruningResultMap);
             int preMax = countPreMax(testInstances);
-
+            log.debug("execute() root: " + root);
+            log.debug("execute() testInstances: " + testInstances.size());
+            log.debug("max: " + max + " targetLabel: " + targetLabel);
+            log.debug("preMax: " + preMax);
             if(preMax > max) {
                 return root;
             } else {
+                log.debug("Node.LEAF");
+
                 root.setType(Node.LEAF);
                 root.getChildren().clear();
                 root.setTargetLabel(targetLabel);
@@ -132,28 +164,35 @@ public class DTreePruning extends DTreeCrossValidation {
             return false;
         }
 
-        private List<Instance> retriveInstanceTest(String keyNode, Node root, List<Instance> testInstances) {
+        private List<Instance> testNode(String keyNode, Node root, List<Instance> testInstances) {
+            //log.debug("attribute:" + root.getAttribute());
+            log.debug("testNode() keyNode: " + keyNode + " testInstances: " + testInstances.size());
+
             final List<Instance> curInstances = new ArrayList<Instance>();
             for(int i = 0; i < testInstances.size(); i++) {
-                final Instance cur = testInstances.get(i);
+                final Instance testInst = testInstances.get(i);
                 final Attribute attribute = root.getAttribute();
-                final String value = cur.getAttribute(attribute.getName());
+                final String value = testInst.getAttribute(attribute.getName());
                 if(attribute.isContinuuousType()) {
                     if(isTestNode(keyNode, value, root)) {
-                        curInstances.add(cur);
+                        curInstances.add(testInst);
                     }
                 } else {
                     if(keyNode.equals(value)) {
-                        curInstances.add(cur);
+                        curInstances.add(testInst);
                     }
                 }
             }
+
+            log.debug("curInstances: " + curInstances.size());
+
             return curInstances;
         }
 
         private Boolean isTestNode(String keyNode, String value, Node root) {
             final Threshold threshold = root.createThreshold(keyNode, value);
             final String partition = threshold.getKeyLabel();
+
             if(partition.equals(Threshold.LESS_LABEL) && threshold.isValueLess(value)) {
                 return true;
             } else if(partition.equals(Threshold.MORE_LABEL) && threshold.isValueMore(value)) {
@@ -178,6 +217,7 @@ public class DTreePruning extends DTreeCrossValidation {
 
         private int countPreMax(List<Instance> testInstances) {
             int preMax = 0;
+
             for(int i = 0; i < testInstances.size(); i++) {
                 int index = testInstances.get(i).getInstanceIndex();
 
