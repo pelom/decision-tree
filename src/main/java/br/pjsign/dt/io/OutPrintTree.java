@@ -10,9 +10,9 @@ import br.pjsign.dt.Node;
 
 public class OutPrintTree {
 
-    public static int nodes;
-    public static int depth;
-    public static int leaf;
+    private static int nodes;
+    private static int depth;
+    private static int leaf;
 
 	public static StringBuilder print(final Node root) {
 	    nodes = -1;
