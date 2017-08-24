@@ -20,7 +20,8 @@ public class NodeDefault implements Node {
 	private Attribute attribute;
 	private HashMap<String, Node> children;
 	private String targetLabel;
-	
+	private int depth;
+
 	public NodeDefault(Attribute attribute) {
 		this.type = ROOT;
 		this.attribute = attribute;
@@ -82,13 +83,27 @@ public class NodeDefault implements Node {
         return getType().equals(LEAF);
     }
 
-	@Override
-	public String toString() {
-		if (type.equals("root")) return "Root attribute: " + attribute.getName() + "; Children: " + children;
-		else return "Leaf label: " + targetLabel;
-	}
+    @Override
+    public String toString() {
+        return "NodeDefault{" +
+                "type='" + type + '\'' +
+                ", depth=" + depth +
+                ", children=" + (children != null ? children.size() : 0) +
+                ", targetLabel='" + targetLabel + '\'' +
+                ", attribute=" + attribute +
+                ", children=" + children +
+                '}';
+    }
 
-	public Threshold createThreshold(String keyChild, String value) {
+    public Threshold createThreshold(String keyChild, String value) {
 	    return new ThresholdContinuous(keyChild, value);
     }
+
+	public int getDepth() {
+		return depth;
+	}
+
+	public void setDepth(int depth) {
+		this.depth = depth;
+	}
 }

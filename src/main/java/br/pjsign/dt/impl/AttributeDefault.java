@@ -6,7 +6,6 @@
 package br.pjsign.dt.impl;
 
 import br.pjsign.dt.Attribute;
-import br.pjsign.dt.InfoCalc;
 
 import java.io.IOException;
 import java.util.ArrayList;

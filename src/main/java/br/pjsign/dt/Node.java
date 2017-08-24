@@ -3,19 +3,20 @@ package br.pjsign.dt;
 import java.util.Map;
 
 public interface Node {
-    static final String ROOT ="root";
-    static final String LEAF ="leaf";
+    String ROOT ="root";
+    String LEAF ="leaf";
 
     Attribute getAttribute();
 
     String getTargetLabel();
     void setTargetLabel(String targetLabel);
-    String getType();
 
+    String getType();
     void setType(String type);
 
     Boolean isRoot();
     Boolean isLeaf();
+
     void addChild(String valueName, Node child);
 
     Map<String, Node> getChildren();
@@ -23,4 +24,7 @@ public interface Node {
     Node isTestValue(String value);
 
     Threshold createThreshold(String keyChild, String value);
+
+    int getDepth();
+    void setDepth(int depth);
 }

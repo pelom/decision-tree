@@ -1,13 +1,13 @@
 package br.pjsign.dt.impl;
 
 import br.pjsign.dt.*;
-import br.pjsign.dt.Entropy;
 import br.pjsign.dt.c45.InfoGainContinuous;
 import br.pjsign.dt.c45.InfoGainDiscrete;
 import br.pjsign.dt.io.InputData;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +17,11 @@ public class DTreeDefault implements DTree {
     protected List<Attribute> attributes;
     protected Attribute attributeTarget;
     protected Node rootNode;
+
+    protected List<Node> nodeList;
+    protected List<Node> nodeLeafList;
+    protected List<Node> nodeDiscreteList;
+    protected List<Node> nodeContinuousList;
 
     /**
      *
@@ -53,60 +58,56 @@ public class DTreeDefault implements DTree {
         return rootNode;
     }
 
-    /**
-     * Construct tree
-     * @return TreeNode
-     * @throws IOException
-     */
     public Node construct(final List<Instance> instances) throws IOException {
-        this.rootNode = constructTree(attributeTarget, attributes, instances);
+        this.nodeList = new LinkedList<Node>();
+        this.nodeLeafList = new LinkedList<Node>();
+        this.nodeDiscreteList = new LinkedList<Node>();
+        this.nodeContinuousList = new LinkedList<Node>();
+
+        this.rootNode = constructTree(instances, 1);
+
+        addNodeRoot(this.rootNode);
+
         return this.rootNode;
     }
 
-    /**
-     * Construct tree recursively. First make the root node, then construct its subtrees
-     * recursively, and finally connect root with subtrees.
-     * @param target
-     * @param attributes
-     * @param instances
-     * @return Node
-     * @throws IOException
-     */
-    private Node constructTree(Attribute target, List<Attribute> attributes,
-                               List<Instance> instances) throws IOException {
+    private Node constructTree(List<Instance> instances, int depth) throws IOException {
 		/*
 		 *  Stop when (1) entropy is zero
 		 *  (2) no attribute left
 		 */
-        final double entropy = Entropy.calculate(target, instances);
-        if(isStop(entropy, attributes)) {
-            return createNodeLeaf(entropy, target, instances);
+        final double entropy = Entropy.calculate(this.attributeTarget, instances);
+        if(isStop(entropy, this.attributes)) {
+            return createNodeLeaf(entropy, this.attributeTarget, instances);
         }
 
         // Choose the root attribute
-        final InfoGain bestInfoGain = createInfoCalc(attributes).calc(target, instances);
+        final InfoGain bestInfoGain = createInfoCalc(this.attributes).calc(this.attributeTarget, instances);
         final Attribute rootAttr = bestInfoGain.getAttribute();
         // Remove the chosen attribute from attribute set
-        attributes.remove(rootAttr);
+        this.attributes.remove(rootAttr);
 
         // Make a new root
-        final Node root = new NodeDefault(rootAttr);
+        final Node root = createNodeRoot(rootAttr);
 
         // Get value subsets of the root attribute to construct branches
         final Map<String, List<Instance>> valueSubsets = bestInfoGain.getSubset();
+
         for (String valueName : valueSubsets.keySet()) {
             final List<Instance> subset = valueSubsets.get(valueName);
+            Node child = null;
+
             if (isStopSubset(subset)) {
-                final Node leaf = createNodeLeaf(target, instances);
-                root.addChild(valueName, leaf);
+                child = createNodeLeaf(this.attributeTarget, instances);
             } else {
-                final Node child = constructTree(target, attributes, subset);
-                root.addChild(valueName, child);
+                child = constructTree(subset, ++depth);
             }
+            child.setDepth(depth);
+            addNodeChild(valueName, root, child);
         }
 
         // Remember to add it again!
-        attributes.add(rootAttr);
+        this.attributes.add(rootAttr);
 
         return root;
     }
@@ -121,6 +122,10 @@ public class DTreeDefault implements DTree {
 
     private Boolean isStopSubset(List<Instance> subset) {
         return subset.size() == 0;
+    }
+
+    protected Node createNodeRoot(final Attribute rootAttr) {
+        return new NodeDefault(rootAttr);
     }
 
     protected Node createNodeLeaf(Attribute target, List<Instance> instances)
@@ -139,6 +144,47 @@ public class DTreeDefault implements DTree {
         }
         Node leaf = new NodeDefault(leafLabel);
         return leaf;
+    }
+
+    protected void addNodeRoot(Node root) {
+        this.nodeList.add(root);
+
+        if(root.getAttribute().isContinuuousType()) {
+            this.nodeContinuousList.add(root);
+        } else {
+            this.nodeDiscreteList.add(root);
+        }
+    }
+
+    protected void addNodeChild(String valueName, Node root, Node child) {
+        root.addChild(valueName, child);
+        this.nodeList.add(child);
+
+        if(child.isLeaf()) {
+            this.nodeLeafList.add(child);
+        }
+
+        if(child.getAttribute() != null && child.getAttribute().isContinuuousType()) {
+            this.nodeContinuousList.add(child);
+        } else if(child.isRoot()) {
+            this.nodeDiscreteList.add(child);
+        }
+    }
+
+    public List<Node> getNodeList() {
+        return nodeList;
+    }
+
+    public List<Node> getNodeLeafList() {
+        return nodeLeafList;
+    }
+
+    public List<Node> getNodeDiscreteList() {
+        return nodeDiscreteList;
+    }
+
+    public List<Node> getNodeContinuousList() {
+        return nodeContinuousList;
     }
 
     /**
@@ -165,8 +211,8 @@ public class DTreeDefault implements DTree {
         return maxLabel;
     }
 
-    protected InfoCalc createInfoCalc(final List<Attribute> attributeList) {
-        final InfoCalc bestInfoGain = new InfoCalc() {
+    protected InfoCalculation createInfoCalc(final List<Attribute> attributeList) {
+        final InfoCalculation bestInfoGain = new InfoCalculation() {
             public InfoGain calc(Attribute target, List<Instance> instances) throws IOException {
                 InfoGain infoGain = null;
                 // Iterate to find the attribute with the largest information gain
@@ -181,7 +227,7 @@ public class DTreeDefault implements DTree {
                 return infoGain;
             }
 
-            private InfoCalc createInfoGain(final Attribute attribute) {
+            private InfoCalculation createInfoGain(final Attribute attribute) {
                 if (attribute.isContinuuousType()) {
                     return new InfoGainContinuous(attribute);
                 }

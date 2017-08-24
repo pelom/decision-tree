@@ -3,10 +3,12 @@ package br.pjsign.dt.impl;
 import br.pjsign.dt.Instance;
 import br.pjsign.dt.Node;
 import br.pjsign.dt.io.InputData;
+import br.pjsign.dt.io.OutPrintTree;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -30,6 +32,33 @@ public class DTreeDefaultTest {
 
         //new OutPrintTree().printTree(rootNode, -1);
         assertEquals("Vacation", rootNode.getAttribute().getName());
+    }
+
+    @Test
+    public void nodesTree() throws Exception {
+        final Node rootNode = tree.construct(trainInput.getInstanceSet());
+        System.out.println(tree.getNodeList().size());
+
+        System.out.println(OutPrintTree.print(rootNode));
+
+        System.out.println("Nodes Continuous");
+        for (int i= tree.getNodeContinuousList().size()-1; i >= 0; i--) {
+            System.out.println(tree.getNodeContinuousList().get(i));
+        }
+        System.out.println("Nodes Discrete");
+        for (int i= tree.getNodeDiscreteList().size()-1; i >= 0; i--) {
+            System.out.println(tree.getNodeDiscreteList().get(i));
+        }
+//
+        System.out.println("Nodes leaf");
+        for (int i= tree.getNodeLeafList().size()-1; i >= 0; i--) {
+            System.out.println(tree.getNodeLeafList().get(i));
+        }
+
+        assertEquals(60, tree.getNodeList().size());
+        assertEquals(14, tree.getNodeContinuousList().size());
+        assertEquals(7, tree.getNodeDiscreteList().size());
+        assertEquals(39, tree.getNodeLeafList().size());
     }
 
     @Test

@@ -1,7 +1,3 @@
-/*********************************
- * Author: Xue (Charlotte) Lin
- * Date: 2015/04/01
- *********************************/
 package br.pjsign.dt.io;
 
 import java.util.Map;
@@ -11,15 +7,12 @@ import br.pjsign.dt.Node;
 public class OutPrintTree {
 
     private static int nodes;
-    private static int depth;
     private static int leaf;
 
 	public static StringBuilder print(final Node root) {
-	    nodes = -1;
-	    depth = -1;
-        final StringBuilder sb = print(root, -1);
-        sb.append("\ndepth: ").append(((int) depth/2))
-                .append(" nodes: ").append(nodes)
+	    nodes = 0;
+        final StringBuilder sb = print(root, 0);
+        sb.append(" nodes: ").append(nodes)
                 .append(" leaf: ").append(leaf);
         return sb;
 	}
@@ -34,7 +27,6 @@ public class OutPrintTree {
             sb.append("[").append(root.getTargetLabel()).append("]");
             return sb;
         } else {
-            depth++;
             sb.append("\n");
             Map<String, Node> children = root.getChildren();
             for (String valueName : children.keySet()) {

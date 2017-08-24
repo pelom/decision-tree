@@ -72,22 +72,6 @@ public class DTreeCrossValidation extends DTreeDefault implements DTreeValidatio
                 correct++;
             }
         }
-//            for(int i = 0; i < testInstances.size(); i++) {
-//                int index = testInstances.get(i).getInstanceIndex();
-//
-//                for(int j = 0; j < this.pruningInstances.size(); j++) {
-//                    final Instance pruningInstance = this.pruningInstances.get(j);
-//                    if(index == pruningInstance.getInstanceIndex()) {
-//                        final String value = pruningInstance.getAttribute(attributeTarget.getName());
-//                        final Node nodeResult = this.pruningResultMap.get(pruningInstance.getInstanceIndex());
-//
-//                        if(nodeResult.getTargetLabel().equals(value)) {
-//                            preMax++;
-//                        }
-//                    }
-//                }
-//
-//            }
         return correct;
     }
 

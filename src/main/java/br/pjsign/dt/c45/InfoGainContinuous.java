@@ -9,7 +9,7 @@ import java.util.*;
 
 import br.pjsign.dt.*;
 
-public class InfoGainContinuous extends InfoGainAbstract implements InfoCalc {
+public class InfoGainContinuous extends InfoGainAbstract {
 
     /**
      * @param attribute
@@ -19,28 +19,16 @@ public class InfoGainContinuous extends InfoGainAbstract implements InfoCalc {
 	}
 
 	public InfoGain calc(final Attribute target, final List<Instance> instances) throws IOException {
-
-		// Initialize threshold and infoGain
-		// (1) Get the name of the attribute to be calculated
-		final String attributeName = attribute.getName();
-
-		// (2) Sort instances according to the attribute
+		final String attributeName = this.attribute.getName();
 		sortInstance(instances);
 
-		/*
-		 (3) Get each position that target value change,
-			then calculate information gain of each position
-		    find the maximum position value to be the threshold
-		 */
-		int thresholdPos = getIndexThredhold(target, instances);
+		final int thresholdPos = getIndexThreshold(target, instances);
+		final Instance instance = instances.get(thresholdPos);
 
-		// (4) Calculate threshold
-		final String aValue = instances.get(thresholdPos).getAttribute(attributeName);
-		final String bValue = instances.get(thresholdPos).getAttribute(attributeName);
+		final String aValue = instance.getAttribute(attributeName);
+		final String bValue = instance.getAttribute(attributeName);
+
 		this.threshold = (Double.parseDouble(aValue) + Double.parseDouble(bValue)) / 2;
-
-		// Initialize subset
-		this.subset = new HashMap<String, List<Instance>>();
 
 		final List<Instance> left = new ArrayList<Instance>();
 		for (int i = 0; i < thresholdPos; i++) {
@@ -57,39 +45,25 @@ public class InfoGainContinuous extends InfoGainAbstract implements InfoCalc {
 		return this;
 	}
 
-	private int getIndexThredhold(final Attribute target, List<Instance> instances) throws IOException {
+	private int getIndexThreshold(final Attribute target, final List<Instance> instances) throws IOException {
         int thresholdPos = 0;
 
         for (int i = 0; i < instances.size() - 1; i++) {
-            final String instanceValue = instances.get(i).getAttribute(attribute.getName());
-            final String instanceValue2 = instances.get(i + 1).getAttribute(attribute.getName());
+        	final Instance instanceA = instances.get(i);
+			final Instance instanceB = instances.get(i + 1);
+
+			final String instanceValue = instanceA.getAttribute(attribute.getName());
+            final String instanceValue2 = instanceB.getAttribute(attribute.getName());
 
             if (!instanceValue.equals(instanceValue2)) {
-                double currInfoGain = calculateConti(target, instances, i);
-                if (currInfoGain - infoGain > 0) {
-                    infoGain = currInfoGain;
+                double currInfoGain = Entropy.calculateContinuous(target, instances, i);
+                if (currInfoGain - this.infoGain > 0) {
+					this.infoGain = currInfoGain;
                     thresholdPos = i;
                 }
             }
         }
         return thresholdPos;
-    }
-
-    public static double calculateConti(Attribute target, List<Instance> instances, int index) throws IOException {
-        int totalN = instances.size();
-        double infoGain = Entropy.calculate(target, instances);
-
-        int subL = index + 1;
-        int subR = instances.size() - index - 1;
-
-        double subResL = ((double) subL) / ((double) totalN) *
-                Entropy.calculateConti(target, instances, 0, index);
-
-        double subResR = ((double) subR) / ((double) totalN) *
-                Entropy.calculateConti(target, instances, index + 1, totalN - 1);
-
-        infoGain -= (subResL + subResR);
-        return infoGain;
     }
 
 	private void sortInstance(final List<Instance> instances) {
