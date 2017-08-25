@@ -16,11 +16,15 @@ public class CrossPruningTest {
 
     @Before
     public void setUp() throws Exception {
-        this.trainInput = new InputData("src/main/resources/trainProdSelection.arff");
-        this.trainInput2 = new InputData("src/main/resources/trainProdSelection.arff");
+        //this.trainInput = new InputData("src/main/resources/trainProdSelection.arff");
+        //this.trainInput2 = new InputData("src/main/resources/trainProdSelection.arff");
 
-        this.testInput = new InputData("src/main/resources/testProdSelection.arff");
-        //new OutPrintTree().printTree(this.tree.getRoot(), -1);
+        //this.testInput = new InputData("src/main/resources/testProdSelection.arff");
+
+        this.trainInput = new InputData("src/main/resources/weather.numeric.arff");
+        this.trainInput2 = new InputData("src/main/resources/weather.numeric.arff");
+
+        this.testInput = new InputData("src/main/resources/weather.numeric.arff");
     }
 
     @Test
@@ -31,10 +35,11 @@ public class CrossPruningTest {
 
         final List<Double> resultCross =
                 this.treeCross.validate(trainInput.getInstanceSet(), k);
-        //new OutPrintTree().printTree(this.treeCross.getRoot(), -1);
+        System.out.println(OutPrintTree.print(this.treeCross));
+
         final List<Double> resultPruning =
                 this.treePruning.validate(trainInput2.getInstanceSet(), k);
-        //new OutPrintTree().printTree(this.treePruning.getRoot(), -1);
+        System.out.println(OutPrintTree.print(this.treePruning, true, true));
 
         System.out.println("Cross: " );
         for(Double d: resultCross) {

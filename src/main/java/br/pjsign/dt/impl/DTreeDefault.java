@@ -6,10 +6,7 @@ import br.pjsign.dt.c45.InfoGainDiscrete;
 import br.pjsign.dt.io.InputData;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DTreeDefault implements DTree {
     private static final int MAJORITY_LABEL = -1;
@@ -41,8 +38,6 @@ public class DTreeDefault implements DTree {
 
         this.attributes = input.getAttributeSet();
         this.attributeTarget = input.getTargetAttribute();
-
-        this.construct(input.getInstanceSet());
     }
 
     /**
@@ -64,7 +59,8 @@ public class DTreeDefault implements DTree {
         this.nodeDiscreteList = new LinkedList<Node>();
         this.nodeContinuousList = new LinkedList<Node>();
 
-        this.rootNode = constructTree(instances, 1);
+        this.rootNode = null;
+        this.rootNode = constructTree(instances, 0);
 
         addNodeRoot(this.rootNode);
 
@@ -72,24 +68,34 @@ public class DTreeDefault implements DTree {
     }
 
     private Node constructTree(List<Instance> instances, int depth) throws IOException {
-		/*
+        /*
 		 *  Stop when (1) entropy is zero
 		 *  (2) no attribute left
 		 */
         final double entropy = Entropy.calculate(this.attributeTarget, instances);
         if(isStop(entropy, this.attributes)) {
-            return createNodeLeaf(entropy, this.attributeTarget, instances);
+            final Node leaf = createNodeLeaf(entropy, instances);
+            leaf.setDepth(depth);
+            return leaf;
         }
 
         // Choose the root attribute
         final InfoGain bestInfoGain = createInfoCalc(this.attributes).calc(this.attributeTarget, instances);
+
+        if(bestInfoGain.getInfoGain() <= 0.01) {
+            String leafLabel = getMajorityLabel(this.attributeTarget, instances);
+            Node leaf = new NodeDefault(leafLabel);
+            leaf.setDepth(depth);
+            return leaf;
+        }
+
         final Attribute rootAttr = bestInfoGain.getAttribute();
         // Remove the chosen attribute from attribute set
         this.attributes.remove(rootAttr);
 
         // Make a new root
         final Node root = createNodeRoot(rootAttr);
-
+        root.setDepth(depth);
         // Get value subsets of the root attribute to construct branches
         final Map<String, List<Instance>> valueSubsets = bestInfoGain.getSubset();
 
@@ -98,11 +104,11 @@ public class DTreeDefault implements DTree {
             Node child = null;
 
             if (isStopSubset(subset)) {
-                child = createNodeLeaf(this.attributeTarget, instances);
+                child = createNodeLeaf(instances);
             } else {
-                child = constructTree(subset, ++depth);
+                child = constructTree(subset, depth+1);
             }
-            child.setDepth(depth);
+            child.setDepth(depth+1);
             addNodeChild(valueName, root, child);
         }
 
@@ -128,19 +134,19 @@ public class DTreeDefault implements DTree {
         return new NodeDefault(rootAttr);
     }
 
-    protected Node createNodeLeaf(Attribute target, List<Instance> instances)
+    protected Node createNodeLeaf(List<Instance> instances)
             throws IOException {
-        return this.createNodeLeaf(MAJORITY_LABEL, target, instances);
+        return this.createNodeLeaf(MAJORITY_LABEL, instances);
     }
 
-    protected Node createNodeLeaf(double entropy, Attribute target, List<Instance> instances)
+    protected Node createNodeLeaf(double entropy, List<Instance> instances)
             throws IOException {
         String leafLabel = null;
         if (isStopEntropy(entropy)) {
             final Instance ins = instances.get(0);
-            leafLabel = ins.getAttribute(target.getName());
+            leafLabel = ins.getAttribute(this.attributeTarget.getName());
         } else {
-            leafLabel = getMajorityLabel(target, instances);
+            leafLabel = getMajorityLabel(this.attributeTarget, instances);
         }
         Node leaf = new NodeDefault(leafLabel);
         return leaf;
@@ -187,6 +193,14 @@ public class DTreeDefault implements DTree {
         return nodeContinuousList;
     }
 
+    public int lengthNodes() {
+        return this.nodeList.size();
+    }
+
+    public int lengthNodesLeft() {
+        return this.nodeLeafList.size();
+    }
+
     /**
      * Get the majority target class label from instances
      * @param target
@@ -215,15 +229,28 @@ public class DTreeDefault implements DTree {
         final InfoCalculation bestInfoGain = new InfoCalculation() {
             public InfoGain calc(Attribute target, List<Instance> instances) throws IOException {
                 InfoGain infoGain = null;
+
+                //Map<String, InfoGain> infoGainMap = new HashMap<String, InfoGain>();
+                List<InfoGain> infoGainList = new ArrayList<InfoGain>(attributeList.size());
                 // Iterate to find the attribute with the largest information gain
                 for (final Attribute currAttribute : attributeList) {
                     final InfoGain currInfoGain = createInfoGain(currAttribute).calc(target, instances);
+                    infoGainList.add(currInfoGain);
+                    //infoGainMap.put(currAttribute.getName(), currInfoGain);
                     if (infoGain == null) {
                         infoGain = currInfoGain;
                     } else if(currInfoGain.getInfoGain() > infoGain.getInfoGain()) {
                         infoGain = currInfoGain;
                     }
                 }
+                Collections.sort(infoGainList, new Comparator<InfoGain>() {
+                    public int compare(InfoGain o1, InfoGain o2) {
+                        final double diff = o2.getInfoGain() - o1.getInfoGain();
+                        if (diff > 0) return 1;
+                        else if (diff < 0) return -1;
+                        else return 0;
+                    }
+                });
                 return infoGain;
             }
 
@@ -252,18 +279,18 @@ public class DTreeDefault implements DTree {
     }
 
     public Node mineInstance(final Instance test, final Node node) {
+        node.onTouched(test);
+
         if(node.isLeaf()) {
             return node;
         }
-        final Attribute attribute = node.getAttribute();
-        final String value = test.getAttribute(attribute.getName());
-
-        Node nodeChild = null;
-        if (attribute.isContinuuousType()) {
-            nodeChild = node.isTestValue(value);
-        } else {
-            nodeChild = node.getChildren().get(value);
-        }
+        final String value = node.getValue(test);
+        final Node nodeChild = node.isTestValue(value);
+//        if (attribute.isContinuuousType()) {
+//            nodeChild = node.isTestValue(value);
+//        } else {
+//            nodeChild = node.getChildren().get(value);
+//        }
         return mineInstance(test, nodeChild);
     }
 }

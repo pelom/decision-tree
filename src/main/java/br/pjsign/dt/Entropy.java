@@ -91,7 +91,7 @@ public class Entropy {
             //System.out.println("i:" + instances.get(i).getInstanceIndex());
             final String valueOfInstanceAtTarget = instances.get(i).getAttribute(target.getName());
             if (!countValueOfTarget.containsKey(valueOfInstanceAtTarget)) {
-                throw new IOException("Invalid input data");
+                throw new IOException("Invalid input data " + target.getName() + " " + valueOfInstanceAtTarget);
             }
 
             countValueOfTarget.put(valueOfInstanceAtTarget,

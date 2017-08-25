@@ -11,4 +11,7 @@ public interface DTree {
     Node getRoot();
 
     Map<Integer, Node> mineInstances(final List<Instance> testInstances);
+
+    int lengthNodes();
+    int lengthNodesLeft();
 }

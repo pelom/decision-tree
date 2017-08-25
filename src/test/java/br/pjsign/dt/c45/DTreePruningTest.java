@@ -20,6 +20,9 @@ public class DTreePruningTest {
     public void setUp() throws Exception {
         this.trainInput = new InputData("src/main/resources/trainProdSelection.arff");
         this.testInput = new InputData("src/main/resources/testProdSelection.arff");
+
+        //this.trainInput = new InputData("src/main/resources/trainProdIntro.binary.arff");
+        //this.testInput = new InputData("src/main/resources/testProdIntro.real.arff");
     }
 
     @Test
@@ -43,7 +46,7 @@ public class DTreePruningTest {
         System.out.println("Pruning Validation Accuracy: " + (cross/k));
 
         System.out.println("PruningTree: ");
-        System.out.println(OutPrintTree.print(this.tree.getRoot()));
+        System.out.println(OutPrintTree.print(this.tree, true, true));
     }
 
 }

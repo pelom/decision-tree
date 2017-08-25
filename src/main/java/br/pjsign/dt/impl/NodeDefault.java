@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import br.pjsign.dt.Attribute;
+import br.pjsign.dt.Instance;
 import br.pjsign.dt.Node;
 import br.pjsign.dt.Threshold;
 import br.pjsign.dt.c45.ThresholdContinuous;
@@ -21,6 +22,7 @@ public class NodeDefault implements Node {
 	private HashMap<String, Node> children;
 	private String targetLabel;
 	private int depth;
+    private int touch;
 
 	public NodeDefault(Attribute attribute) {
 		this.type = ROOT;
@@ -62,14 +64,14 @@ public class NodeDefault implements Node {
 	}
 
 	public Node isTestValue(final String value) {
-	    if(!this.attribute.isContinuuousType()) {
-	        throw new RuntimeException("Only continuous attribute can be tested");
+	    if (this.attribute.isDiscreteType()) {
+            return getChildren().get(value);
         }
 
-        for (final String keyChild : children.keySet()) {
+        for (final String keyChild : this.children.keySet()) {
             final Threshold threshold = createThreshold(keyChild, value);
             if(threshold.isKeyValid()) {
-                return children.get(keyChild);
+                return this.children.get(keyChild);
             }
         }
         throw new RuntimeException("Not found");
@@ -90,6 +92,7 @@ public class NodeDefault implements Node {
                 ", depth=" + depth +
                 ", children=" + (children != null ? children.size() : 0) +
                 ", targetLabel='" + targetLabel + '\'' +
+                ", touch='" + touch + '\'' +
                 ", attribute=" + attribute +
                 ", children=" + children +
                 '}';
@@ -106,4 +109,17 @@ public class NodeDefault implements Node {
 	public void setDepth(int depth) {
 		this.depth = depth;
 	}
+
+    public String getValue(final Instance test) {
+        final Attribute attribute = getAttribute();
+        return test.getAttribute(attribute.getName());
+    }
+
+    public void onTouched(final Instance test) {
+        this.touch +=1;
+    }
+
+    public int getTouched() {
+        return this.touch;
+    }
 }

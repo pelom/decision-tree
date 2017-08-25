@@ -7,27 +7,31 @@ import br.pjsign.dt.io.OutPrintTree;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 
 public class DTreeDefaultTest {
     private InputData trainInput;
     private InputData testInput;
+
+    //private InputData trainInput2;
+    //private InputData testInput2;
+
     private DTreeDefault tree;
 
     @Before
     public void setUp() throws Exception {
-        this.trainInput = new InputData("src/main/resources/trainProdSelection.arff");
-        this.testInput = new InputData("src/main/resources/testProdSelection.arff");
-        this.tree = new DTreeDefault(trainInput);
+        this.trainInput = new InputData("src/main/resources/weather.numeric.arff");
+        this.testInput = new InputData("src/main/resources/weather.numeric.arff");
+
+        //this.trainInput2 = new InputData("src/main/resources/trainProdIntro.binary.arff");
+        //this.testInput2 = new InputData("src/main/resources/testProdIntro.real.arff");
     }
 
     @Test
     public void construct() throws Exception {
+        this.tree = new DTreeDefault(trainInput);
         final Node rootNode = tree.construct(trainInput.getInstanceSet());
 
         //new OutPrintTree().printTree(rootNode, -1);
@@ -36,29 +40,38 @@ public class DTreeDefaultTest {
 
     @Test
     public void nodesTree() throws Exception {
-        final Node rootNode = tree.construct(trainInput.getInstanceSet());
-        System.out.println(tree.getNodeList().size());
+        this.tree = new DTreeDefault(this.trainInput);
+        this.tree.construct(this.trainInput.getInstanceSet());
 
-        System.out.println(OutPrintTree.print(rootNode));
+        this.testInput.load();
+        final List<Instance> testInstances = this.testInput.getInstanceSet();
+        final List<Instance> testInstances2 = new ArrayList<Instance>(this.testInput.getInstanceSet());
+        final Map<Integer, Node> instanceNodeMap = this.tree.mineInstances(testInstances);
+        System.out.println(OutPrintTree.print(tree, true, true));
 
-        System.out.println("Nodes Continuous");
-        for (int i= tree.getNodeContinuousList().size()-1; i >= 0; i--) {
-            System.out.println(tree.getNodeContinuousList().get(i));
-        }
-        System.out.println("Nodes Discrete");
-        for (int i= tree.getNodeDiscreteList().size()-1; i >= 0; i--) {
-            System.out.println(tree.getNodeDiscreteList().get(i));
-        }
-//
-        System.out.println("Nodes leaf");
-        for (int i= tree.getNodeLeafList().size()-1; i >= 0; i--) {
-            System.out.println(tree.getNodeLeafList().get(i));
-        }
+        //this.tree = new DTreeDefault(trainInput);
+        this.tree.construct(trainInput.getInstanceSet());
+        //this.tree.construct(trainInput.getInstanceSet());
+        final Map<Integer, Node> instanceNodeMap2 = tree.mineInstances(testInstances2);
+        System.out.println(OutPrintTree.print(tree, true, true));
 
-        assertEquals(60, tree.getNodeList().size());
-        assertEquals(14, tree.getNodeContinuousList().size());
+//        System.out.println("Nodes Continuous");
+//        for (int i= tree.getNodeContinuousList().size()-1; i >= 0; i--) {
+//            System.out.println(tree.getNodeContinuousList().get(i));
+//        }
+//        System.out.println("Nodes Discrete");
+//        for (int i= tree.getNodeDiscreteList().size()-1; i >= 0; i--) {
+//            System.out.println(tree.getNodeDiscreteList().get(i));
+//        }
+//        System.out.println("Nodes leaf");
+//        for (int i= tree.getNodeLeafList().size()-1; i >= 0; i--) {
+//            System.out.println(tree.getNodeLeafList().get(i));
+//        }
+
+        assertEquals(58, tree.getNodeList().size());
+        assertEquals(13, tree.getNodeContinuousList().size());
         assertEquals(7, tree.getNodeDiscreteList().size());
-        assertEquals(39, tree.getNodeLeafList().size());
+        assertEquals(38, tree.getNodeLeafList().size());
     }
 
     @Test
@@ -81,25 +94,41 @@ public class DTreeDefaultTest {
     @Test
     public void mineInstances() throws Exception {
         this.tree = new DTreeDefault(trainInput);
-        this.testInput.load();
-        final List<Instance> testInstances = this.testInput.getInstanceSet();
-        final Map<Integer, Node> instanceNodeMap = tree.mineInstances(testInstances);
+//        this.testInput.load();
+//        final List<Instance> testInstances = this.testInput.getInstanceSet();
+//        final Map<Integer, Node> instanceNodeMap = tree.mineInstances(testInstances);
+//
+//        final Map<String, Integer> testResult = new HashMap<String, Integer>(instanceNodeMap.size());
+//        for(Node node : instanceNodeMap.values()) {
+//            testResult.put(node.getTargetLabel(), 0);
+//        }
+//        final List<Instance> testInstance = this.testInput.getInstanceSet();
+//        for (Instance ins: testInstance ) {
+//            final Node node = instanceNodeMap.get(ins.getInstanceIndex());
+//            testResult.put(node.getTargetLabel(), testResult.get(node.getTargetLabel()) +1);
+//        }
+//        assertEquals(21, instanceNodeMap.size());
+//        assertEquals(Integer.valueOf(4), testResult.get("C1"));
+//        assertEquals(Integer.valueOf(2), testResult.get("C2"));
+//        assertEquals(Integer.valueOf(4), testResult.get("C3"));
+//        assertEquals(Integer.valueOf(6), testResult.get("C4"));
+//        assertEquals(Integer.valueOf(5), testResult.get("C5"));
 
-        final Map<String, Integer> testResult = new HashMap<String, Integer>(instanceNodeMap.size());
-        for(Node node : instanceNodeMap.values()) {
-            testResult.put(node.getTargetLabel(), 0);
+        System.out.println(OutPrintTree.print(tree));
+
+        System.out.println("Nodes Continuous");
+        for (int i= tree.getNodeContinuousList().size()-1; i >= 0; i--) {
+            System.out.println(tree.getNodeContinuousList().get(i));
         }
-        final List<Instance> testInstance = this.testInput.getInstanceSet();
-        for (Instance ins: testInstance ) {
-            final Node node = instanceNodeMap.get(ins.getInstanceIndex());
-            testResult.put(node.getTargetLabel(), testResult.get(node.getTargetLabel()) +1);
+        System.out.println("Nodes Discrete");
+        for (int i= tree.getNodeDiscreteList().size()-1; i >= 0; i--) {
+            System.out.println(tree.getNodeDiscreteList().get(i));
         }
-        assertEquals(21, instanceNodeMap.size());
-        assertEquals(Integer.valueOf(4), testResult.get("C1"));
-        assertEquals(Integer.valueOf(2), testResult.get("C2"));
-        assertEquals(Integer.valueOf(4), testResult.get("C3"));
-        assertEquals(Integer.valueOf(6), testResult.get("C4"));
-        assertEquals(Integer.valueOf(5), testResult.get("C5"));
+        System.out.println("Nodes leaf");
+        for (int i= tree.getNodeLeafList().size()-1; i >= 0; i--) {
+            System.out.println(tree.getNodeLeafList().get(i));
+        }
+
     }
 
 }

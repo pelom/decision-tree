@@ -6,6 +6,7 @@ import br.pjsign.dt.io.OutPrintTree;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -52,7 +53,10 @@ public class DTreeCrossValidationTest {
         this.tree = new DTreeCrossValidation(trainInput);
 
         final List<Instance> instances = trainInput.getInstanceSet();
+        final List<Instance> instances2 = new ArrayList<Instance>(trainInput.getInstanceSet());
+
         final List<Double> res = this.tree.validate(instances, k);
+        final List<Double> res2 = this.tree.validate(instances2, k);
         double cross = 0;
         for(Double d: res) {
             cross += d;
@@ -66,6 +70,6 @@ public class DTreeCrossValidationTest {
         assertEquals(k, res.size());
 
         System.out.println("Tree: ");
-        System.out.println(OutPrintTree.print(this.tree.getRoot()));
+        System.out.println(OutPrintTree.print(this.tree));
     }
 }

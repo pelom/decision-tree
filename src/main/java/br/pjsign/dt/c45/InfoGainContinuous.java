@@ -23,10 +23,12 @@ public class InfoGainContinuous extends InfoGainAbstract {
 		sortInstance(instances);
 
 		final int thresholdPos = getIndexThreshold(target, instances);
+
 		final Instance instance = instances.get(thresholdPos);
+		final Instance instance2 = instances.get(thresholdPos+1);
 
 		final String aValue = instance.getAttribute(attributeName);
-		final String bValue = instance.getAttribute(attributeName);
+		final String bValue = instance2.getAttribute(attributeName);
 
 		this.threshold = (Double.parseDouble(aValue) + Double.parseDouble(bValue)) / 2;
 
