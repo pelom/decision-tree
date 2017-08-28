@@ -20,23 +20,21 @@ public class InputData {
 	private Attribute targetAttribute;
 	private List<Attribute> attributeSet;
 	private List<Instance> instanceSet;
-	private final String fileName;
+	private final File file;
 
 	private boolean read = false;
 
-	/**
-	 * Constructor to initialize fields.
-	 * @param fileName: file name of input data file
-	 * @throws IOException 
-	 */
-	public InputData(String fileName) throws IOException {
-		this.fileName = fileName;
+	public InputData(String fileName) {
+		this(new File(fileName));
+	}
+
+	public InputData(File file) {
+		this.file = file;
 		this.attributeSet = new ArrayList<Attribute>();
 		this.instanceSet = new ArrayList<Instance>();
 	}
-
 	public void load() throws IOException {
-		final Scanner in = new Scanner(new File(fileName));
+		final Scanner in = new Scanner(file);
 
 		// Pass the first two line of input data.
 		if (!in.hasNextLine()) {
@@ -65,6 +63,9 @@ public class InputData {
 		// Put all instances into instanceSet
 		while (in.hasNextLine()) {
 			line = in.nextLine();
+			if(line.trim().length() == 0) {
+				continue;
+			}
 			final String[] lineArr = line.split(",");
 			final Instance item = createInstance(lineArr);
 			instanceSet.add(item);
@@ -76,7 +77,10 @@ public class InputData {
 		final Instance instance = new InstanceDefault();
 		for (int i = 0; i < line.length; i++) {
 			final Attribute at = this.attributeSet.get(i);
-			instance.setAttribute(at.getName(), line[i]);
+			final String str = line[i];
+			final String temp = str.replaceAll("\\s+", "");
+
+			instance.setAttribute(at.getName(), temp);
 		}
 
 		return instance;

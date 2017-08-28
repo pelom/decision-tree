@@ -14,7 +14,7 @@ import br.pjsign.dt.Attribute;
 import br.pjsign.dt.Instance;
 import br.pjsign.dt.Node;
 import br.pjsign.dt.Threshold;
-import br.pjsign.dt.c45.ThresholdContinuous;
+import br.pjsign.dt.impl.c45.ThresholdContinuous;
 
 public class NodeDefault implements Node {
     private String type;

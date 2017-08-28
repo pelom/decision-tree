@@ -1,0 +1,55 @@
+@relation move_location
+
+@attribute MeuLocal {centro,sul,norte,leste,oeste,sudeste,sudoeste,nordeste,noroeste}
+@attribute CentroMenosInimigos? {sim,nao}
+@attribute SulMenosInimigos? {sim,nao}
+@attribute NorteMenosInimigos? {sim,nao}
+@attribute LesteMenosInimigos? {sim,nao}
+@attribute OesteMenosInimigos? {sim,nao}
+@attribute SudesteMenosInimigos? {sim,nao}
+@attribute SudoesteMenosInimigos? {sim,nao}
+@attribute NordesteMenosInimigos? {sim,nao}
+@attribute NoroesteMenosInimigos? {sim,nao}
+@attribute MoverPara {S,N,L,O,C,SL,SO,NL,NO}
+
+@data
+sul,    nao,nao,nao,nao,sim,nao,nao,nao,nao,O
+sul,    nao,nao,nao,sim,nao,nao,nao,nao,nao,L
+sul,    sim,nao,nao,nao,nao,nao,nao,nao,nao,C
+sul,    nao,nao,nao,nao,nao,sim,nao,nao,nao,SL
+sul,    nao,nao,nao,nao,nao,nao,sim,nao,nao,SO
+norte,  nao,nao,nao,nao,sim,nao,nao,nao,nao,O
+norte,  nao,nao,nao,sim,nao,nao,nao,nao,nao,L
+norte,  sim,nao,nao,nao,nao,nao,nao,nao,nao,C
+norte,  nao,nao,nao,nao,nao,nao,nao,sim,nao,NL
+norte,  nao,nao,nao,nao,nao,nao,nao,nao,sim,NO
+centro, nao,nao,nao,nao,sim,nao,nao,nao,nao,O
+centro, nao,nao,nao,sim,nao,nao,nao,nao,nao,L
+centro, nao,nao,sim,nao,nao,nao,nao,nao,nao,N
+centro, nao,sim,nao,nao,nao,nao,nao,nao,nao,S
+centro, nao,nao,nao,nao,nao,sim,nao,nao,nao,SL
+centro, nao,nao,nao,nao,nao,nao,sim,nao,nao,SO
+centro,  nao,nao,nao,nao,nao,nao,nao,sim,nao,NL
+centro,  nao,nao,nao,nao,nao,nao,nao,nao,sim,NO
+leste,  nao,sim,nao,nao,nao,nao,nao,nao,nao,S
+leste,  nao,nao,sim,nao,nao,nao,nao,nao,nao,N
+leste,  sim,nao,nao,nao,nao,nao,nao,nao,nao,C
+leste,  nao,nao,nao,nao,nao,sim,nao,nao,nao,SL
+leste,  nao,nao,nao,nao,nao,nao,nao,sim,nao,NL
+oeste,  nao,sim,nao,nao,nao,nao,nao,nao,nao,S
+oeste,  nao,nao,sim,nao,nao,nao,nao,nao,nao,N
+oeste,  sim,nao,nao,nao,nao,nao,nao,nao,nao,C
+oeste,  nao,nao,nao,nao,nao,nao,sim,nao,nao,SO
+oeste,  nao,nao,nao,nao,nao,nao,nao,nao,sim,NO
+sudeste,nao,sim,nao,nao,nao,nao,nao,nao,nao,S
+sudeste,nao,nao,nao,sim,nao,nao,nao,nao,nao,L
+sudeste,sim,nao,nao,nao,nao,nao,nao,nao,nao,C
+sudoeste,nao,sim,nao,nao,nao,nao,nao,nao,nao,S
+sudoeste,nao,nao,nao,nao,sim,nao,nao,nao,nao,O
+sudoeste,sim,nao,nao,nao,nao,nao,nao,nao,nao,C
+nordeste,nao,nao,sim,nao,nao,nao,nao,nao,nao,N
+nordeste,nao,nao,nao,sim,nao,nao,nao,nao,nao,L
+nordeste,sim,nao,nao,nao,nao,nao,nao,nao,nao,C
+noroeste,nao,nao,sim,nao,nao,nao,nao,nao,nao,N
+noroeste,nao,nao,nao,nao,sim,nao,nao,nao,nao,O
+noroeste,sim,nao,nao,nao,nao,nao,nao,nao,nao,C

@@ -1,0 +1,41 @@
+@relation move_location
+
+@attribute SulMenosInimigos? real
+@attribute NorteMenosInimigos? real
+@attribute LesteMenosInimigos? real
+@attribute OesteMenosInimigos? real
+@attribute SudesteMenosInimigos? real
+@attribute SudoesteMenosInimigos? real
+@attribute NordesteMenosInimigos? real
+@attribute NoroesteMenosInimigos? real
+@attribute CentroMenosInimigos? real
+@attribute MoverPara {S,N,L,O,C,SL,SO,NL,NO}
+
+@data
+
+0.11,1,1,1,1,1,1,1,1,S
+0.111,1,1,1,1,1,1,1,1,S
+
+1,0.11,1,1,1,1,1,1,1,N
+1,0.111,1,1,1,1,1,1,1,N
+
+1,1,0.11,1,1,1,1,1,1,L
+1,1,0.111,1,1,1,1,1,1,L
+
+1,1,1,0.11,1,1,1,1,1,O
+1,1,1,0.111,1,1,1,1,1,O
+
+1,1,1,1,0.11,1,1,1,1,SL
+1,1,1,1,0.111,1,1,1,1,SL
+
+1,1,1,1,1,0.11,1,1,1,SO
+1,1,1,1,1,0.111,1,1,1,SO
+
+1,1,1,1,1,1,0.11,1,1,NL
+1,1,1,1,1,1,0.111,1,1,NL
+
+1,1,1,1,1,1,1,0.11,1,NO
+1,1,1,1,1,1,1,0.111,1,NO
+
+1,1,1,1,1,1,1,1,0.111,C
+1,1,1,1,1,1,1,1,1,C
